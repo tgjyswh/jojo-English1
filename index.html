@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿童英语消消乐 - 单词巩固</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        // Tailwind配置：卡通鲜艳色调
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B8B', // 粉色主色调
+                        secondary: '#4CAF50', // 绿色成功色
+                        accent: '#FFD600', // 黄色强调色
+                        blue: '#2196F3',
+                        purple: '#9C27B0',
+                        orange: '#FF9800',
+                        card: '#FFFFFF',
+                        text: '#333333',
+                        lightText: '#666666',
+                        bg: '#F9F3F7'
+                    },
+                    fontFamily: {
+                        comic: ['"Comic Sans MS"', '"Marker Felt"', 'cursive'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'pop': 'pop 0.3s ease-out',
+                        'fade-out': 'fadeOut 0.5s ease-out forwards',
+                        'flip': 'flip 0.4s ease-out',
+                        'bounce': 'bounce 0.6s ease-in-out',
+                        'float': 'float 3s ease-in-out infinite',
+                        'shine': 'shine 1.5s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        fadeOut: {
+                            '0%': { opacity: '1', transform: 'scale(1)' },
+                            '100%': { opacity: '0', transform: 'scale(0.5)', display: 'none' }
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.1)' },
+                            '100%': { transform: 'scale(1)' }
+                        },
+                        flip: {
+                            '0%': { transform: 'rotateY(0deg)' },
+                            '100%': { transform: 'rotateY(180deg)' }
+                        },
+                        bounce: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' }
+                        },
+                        shine: {
+                            '0%, 100%': { boxShadow: '0 0 10px rgba(255, 214, 0, 0.5)' },
+                            '50%': { boxShadow: '0 0 20px rgba(255, 214, 0, 0.8)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-shadow {
+                box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            }
+            .卡通-bg {
+                background-color: #F9F3F7;
+                background-image: 
+                    radial-gradient(#FFE0E9 10%, transparent 11%),
+                    radial-gradient(#FFE0E9 10%, transparent 11%);
+                background-size: 40px 40px;
+                background-position: 0 0, 20px 20px;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-3px) scale(1.02);
+                box-shadow: 0 5px 12px rgba(0,0,0,0.12);
+            }
+            .btn-cartoon {
+                border-radius: 50px;
+                transition: all 0.3s ease;
+                box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            }
+            .btn-cartoon:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+            }
+            .btn-cartoon:active {
+                transform: translateY(1px);
+            }
+            .star-rating {
+                color: #FFD600;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            }
+            .toast {
+                position: fixed;
+                top: 15%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 100;
+                padding: 12px 24px;
+                border-radius: 50px;
+                background-color: rgba(255, 255, 255, 0.98);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                text-align: center;
+                font-size: 16px;
+                font-weight: bold;
+                color: #333;
+                opacity: 0;
+                transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+                font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+            }
+            .toast.show {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+            .confetti {
+                position: fixed;
+                width: 8px;
+                height: 8px;
+                background-color: #f2d74e;
+                border-radius: 50%;
+                animation: confetti-fall 5s ease-in-out infinite;
+                z-index: 99;
+            }
+            @keyframes confetti-fall {
+                0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+            .decor-element {
+                position: absolute;
+                z-index: 0;
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body class="卡通-bg min-h-screen text-text font-comic relative overflow-x-hidden pb-6">
+    <!-- 装饰元素 - 优化大小适配移动端 -->
+    <div class="decor-element top-10 left-5 text-primary text-2xl animate-float">
+        <i class="fa fa-star"></i>
+    </div>
+    <div class="decor-element top-20 right-5 text-blue text-xl animate-float" style="animation-delay: 0.5s">
+        <i class="fa fa-heart"></i>
+    </div>
+    <div class="decor-element bottom-10 left-1/4 text-orange text-lg animate-float" style="animation-delay: 1s">
+        <i class="fa fa-smile-o"></i>
+    </div>
+    <div class="decor-element bottom-20 right-1/3 text-purple text-xl animate-float" style="animation-delay: 1.5s">
+        <i class="fa fa-moon-o"></i>
+    </div>
+
+    <!-- 顶部导航 - 优化移动端高度和间距 -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-sm card-shadow py-2">
+        <div class="container mx-auto px-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-primary flex items-center gap-2 text-shadow">
+                <i class="fa fa-paint-brush"></i>
+                <span>英语单词消消乐</span>
+            </h1>
+            <div class="flex items-center gap-2">
+                <button id="soundToggle" class="p-2 rounded-full hover:bg-pink-100 transition-colors btn-cartoon bg-white">
+                    <i class="fa fa-volume-up text-primary text-lg"></i>
+                </button>
+                <button id="infoBtn" class="p-2 rounded-full hover:bg-blue-100 transition-colors btn-cartoon bg-white">
+                    <i class="fa fa-question-circle text-blue text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 鼓励提示框 -->
+    <div id="encourageToast" class="toast">
+        <i class="fa fa-smile-o text-accent mr-2 text-lg"></i>
+        <span id="encourageText">再试一次，你可以的！</span>
+    </div>
+
+    <!-- 成功提示框 -->
+    <div id="successToast" class="toast bg-secondary/95 text-white">
+        <i class="fa fa-check-circle text-accent mr-2 text-lg"></i>
+        <span id="successText">匹配成功！真棒！</span>
+    </div>
+
+    <!-- 主内容区 - 优化移动端间距 -->
+    <main class="container mx-auto px-3 py-4 relative z-10">
+        <!-- 标题区域 - 减小间距和字体 -->
+        <div class="text-center mb-3 animate-fade-in">
+            <h2 class="text-[clamp(1.2rem,3vw,1.5rem)] font-bold text-text mb-1 text-shadow">
+                单词大挑战
+            </h2>
+            <div class="flex justify-center gap-1 mb-1">
+                <div class="star-rating" id="star1"><i class="fa fa-star-o text-xl"></i></div>
+                <div class="star-rating" id="star2"><i class="fa fa-star-o text-xl"></i></div>
+                <div class="star-rating" id="star3"><i class="fa fa-star-o text-xl"></i></div>
+            </div>
+            <p class="text-lightText text-xs mt-0">共 <span id="totalPairs" class="text-primary font-bold">9</span> 对单词，全部匹配赢取三星！</p>
+        </div>
+
+        <!-- 游戏状态 - 优化移动端布局，减小间距和内边距 -->
+        <div class="flex justify-center gap-3 mb-4 flex-wrap">
+            <div class="bg-white rounded-full px-4 py-2 card-shadow flex items-center gap-2 btn-cartoon text-sm">
+                <i class="fa fa-check-circle text-secondary text-base"></i>
+                <span class="font-bold">已匹配: <span id="matchedCount" class="text-primary">0</span>/<span id="totalCount">9</span></span>
+            </div>
+            <div class="bg-white rounded-full px-4 py-2 card-shadow flex items-center gap-2 btn-cartoon text-sm">
+                <i class="fa fa-clock-o text-blue text-base"></i>
+                <span class="font-bold">用时: <span id="timer" class="text-blue">00:00</span></span>
+            </div>
+        </div>
+
+        <!-- 游戏区域 - 优化移动端网格布局，减小卡片大小和间距 -->
+        <div id="gameBoard" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
+            <!-- 卡片将通过JS动态生成 -->
+        </div>
+
+        <!-- 控制按钮 - 优化移动端大小 -->
+        <div class="flex justify-center gap-4 mb-2 flex-wrap">
+            <button id="restartBtn" class="px-6 py-3 bg-orange text-white rounded-full text-base font-bold btn-cartoon flex items-center gap-2 hover:bg-orange-600">
+                <i class="fa fa-refresh"></i> 重新挑战
+            </button>
+        </div>
+    </main>
+
+    <!-- 通关弹窗 - 优化移动端大小 -->
+    <div id="successModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 animate-pop relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-accent/10 rounded-full -ml-12 -mb-12"></div>
+            </div>
+            
+            <div class="text-center relative z-10">
+                <div class="inline-block p-4 rounded-full bg-secondary/20 text-secondary mb-4 animate-shine">
+                    <i class="fa fa-trophy text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-text mb-2 text-shadow">太棒了！挑战成功！</h3>
+                <p class="text-lightText mb-4 text-base">你已经成功掌握了所有单词</p>
+                
+                <div class="flex justify-center gap-2 mb-2">
+                    <div class="star-rating animate-bounce" style="animation-delay: 0s">
+                        <i class="fa fa-star text-xl"></i>
+                    </div>
+                    <div class="star-rating animate-bounce" style="animation-delay: 0.2s">
+                        <i class="fa fa-star text-xl"></i>
+                    </div>
+                    <div class="star-rating animate-bounce" style="animation-delay: 0.4s">
+                        <i class="fa fa-star text-xl"></i>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-pink-50 rounded-xl p-3 card-shadow">
+                        <p class="text-xs text-lightText mb-1">总用时</p>
+                        <p id="finalTime" class="text-lg font-bold text-primary">01:23</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-xl p-3 card-shadow">
+                        <p class="text-xs text-lightText mb-1">正确率</p>
+                        <p id="accuracyRate" class="text-lg font-bold text-blue">100%</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button id="playAgainModalBtn" class="w-full px-4 py-3 bg-orange text-white rounded-full font-bold btn-cartoon hover:bg-orange-600">
+                        <i class="fa fa-refresh mr-1"></i> 再玩一次
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 信息弹窗 - 优化移动端大小 -->
+    <div id="infoModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-4 max-w-md w-full mx-4 animate-pop">
+            <div class="text-center mb-3">
+                <h3 class="text-lg font-bold text-primary mb-3 text-shadow">游戏玩法</h3>
+            </div>
+            <ul class="text-lightText space-y-2 mb-5 text-sm">
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-secondary mt-1 text-base"></i>
+                    <span>点击英语单词卡片和对应的图片卡片进行匹配</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-secondary mt-1 text-base"></i>
+                    <span>点击单词卡片可以听到英文发音哦</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-secondary mt-1 text-base"></i>
+                    <span>匹配成功的卡片会消失，全部匹配完成赢取三星！</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="fa fa-check-circle text-secondary mt-1 text-base"></i>
+                    <span>用时越短，表现越棒！</span>
+                </li>
+            </ul>
+            <button id="closeInfoBtn" class="w-full py-2 bg-primary text-white rounded-full font-bold btn-cartoon hover:bg-pink-600">
+                知道啦，开始玩！
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ================= 可配置单词数据 =================
+        const wordWeeks = [
+            // 单词列表
+            [
+                { 
+                    english: "sun", 
+                    chinese: "太阳", 
+                    image: "assets/images/太阳.png", // 统一为占位图
+                    audio: "assets/audio/sun.mp3"
+                },
+                { 
+                    english: "moon", 
+                    chinese: "月亮", 
+                    image: "assets/images/月亮.png",
+                    audio: "assets/audio/moon.mp3"
+                },
+                { 
+                    english: "turtle", 
+                    chinese: "乌龟", 
+                    image: "assets/images/乌龟.png",
+                    audio: "assets/audio/turtle.mp3"
+                },
+                { 
+                    english: "eye", 
+                    chinese: "眼睛", 
+                    image: "assets/images/眼睛.png",
+                    audio: "assets/audio/eye.mp3"
+                },
+                { 
+                    english: "face", 
+                    chinese: "脸", 
+                    image: "assets/images/脸.png",
+                    audio: "assets/audio/face.mp3"
+                },
+                { 
+                    english: "mouth", 
+                    chinese: "嘴巴", 
+                    image: "assets/images/嘴巴.png",
+                    audio: "assets/audio/mouth.mp3"
+                },
+                { 
+                    english: "hair", 
+                    chinese: "头发", 
+                    image: "assets/images/头发.png",
+                    audio: "assets/audio/hair.mp3"
+                },
+                { 
+                    english: "nose", 
+                    chinese: "鼻子", 
+                    image: "assets/images/鼻子.png",
+                    audio: "assets/audio/nose.mp3"
+                },
+                { 
+                    english: "ear", 
+                    chinese: "耳朵", 
+                    image: "assets/images/耳朵.png",
+                    audio: "assets/audio/ear.mp3"
+                }
+            ]
+        ];
+
+        // ================= 游戏配置 =================
+        let currentWords = wordWeeks[0]; // 直接使用唯一的单词列表
+        let selectedCard = null;
+        let matchedPairs = 0;
+        let totalPairs = currentWords.length;
+        let gameStarted = false;
+        let startTime = 0;
+        let timerInterval = null;
+        let wrongMatches = 0;
+        let soundEnabled = true;
+        let starsEarned = 0;
+
+        // DOM元素
+        const gameBoard = document.getElementById('gameBoard');
+        const matchedCountEl = document.getElementById('matchedCount');
+        const totalCountEl = document.getElementById('totalCount');
+        const totalPairsEl = document.getElementById('totalPairs');
+        const timerEl = document.getElementById('timer');
+        const successModal = document.getElementById('successModal');
+        const finalTimeEl = document.getElementById('finalTime');
+        const accuracyRateEl = document.getElementById('accuracyRate');
+        const soundToggle = document.getElementById('soundToggle');
+        const infoModal = document.getElementById('infoModal');
+        const encourageToast = document.getElementById('encourageToast');
+        const encourageText = document.getElementById('encourageText');
+        const successToast = document.getElementById('successToast');
+        const star1 = document.getElementById('star1');
+        const star2 = document.getElementById('star2');
+        const star3 = document.getElementById('star3');
+
+        // 音效URL（可替换为实际音效文件）
+        const sounds = {
+            success: 'https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3',
+            error: 'https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-tone-2870.mp3',
+            click: 'https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3',
+            win: 'https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3',
+            start: 'https://assets.mixkit.co/sfx/preview/mixkit-video-game-start-2574.mp3'
+        };
+
+        // 鼓励语集合
+        const encourageMessages = [
+            "再试一次，你可以的！",
+            "加油呀，快找到正确答案了！",
+            "没关系，继续努力！",
+            "很棒的尝试，再想想～",
+            "不要放弃，你很接近了！",
+            "继续加油，你越来越棒了！",
+            "差一点点，再试一次吧！",
+            "真勇敢，继续挑战！",
+            "太厉害啦，继续冲！",
+            "坚持就是胜利！"
+        ];
+
+        // 成功提示语
+        const successMessages = [
+            "匹配成功！真棒！",
+            "太厉害啦！正确！",
+            "太棒了，继续加油！",
+            "真聪明，答对了！",
+            "完美匹配！真厉害！"
+        ];
+
+        // 初始化游戏
+        function initGame() {
+            // 重置游戏状态
+            matchedPairs = 0;
+            wrongMatches = 0;
+            starsEarned = 0;
+            matchedCountEl.textContent = matchedPairs;
+            totalCountEl.textContent = totalPairs;
+            totalPairsEl.textContent = totalPairs;
+            
+            // 重置星星
+            star1.innerHTML = '<i class="fa fa-star-o text-xl"></i>';
+            star2.innerHTML = '<i class="fa fa-star-o text-xl"></i>';
+            star3.innerHTML = '<i class="fa fa-star-o text-xl"></i>';
+            
+            // 清空游戏板
+            gameBoard.innerHTML = '';
+            
+            // 停止计时器
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerEl.textContent = '00:00';
+            }
+            gameStarted = false;
+            
+            // 生成卡片
+            const cards = [];
+            currentWords.forEach(word => {
+                const englishCard = createCard('english', word.english, word.chinese, word.audio);
+                const imageCard = createCard('image', word.image, word.english, word.audio, word.chinese);
+                cards.push(englishCard, imageCard);
+            });
+            
+            // 随机排序
+            cards.sort(() => Math.random() - 0.5);
+            
+            // 添加到游戏板
+            cards.forEach((card, index) => {
+                // 延迟添加，创造逐个出现的效果
+                setTimeout(() => {
+                    gameBoard.appendChild(card);
+                }, index * 30);
+            });
+            
+            // 隐藏弹窗
+            successModal.classList.add('hidden');
+            
+            // 播放开始音效
+            playSound(sounds.start);
+        }
+
+        // 创建卡通风格卡片 - 优化移动端大小
+        function createCard(type, content, matchValue, audio, chinese = '') {
+            const card = document.createElement('div');
+            
+            // 卡片基础样式 - 优化移动端大小
+            let cardClass = 'bg-card rounded-xl card-shadow p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 card-hover animate-fade-in relative overflow-hidden';
+            
+            // 根据类型添加不同颜色
+            if (type === 'english') {
+                cardClass += ' bg-pink-50 border-2 border-primary';
+            } else {
+                cardClass += ' bg-blue-50 border-2 border-blue';
+            }
+            
+            card.className = cardClass;
+            card.dataset.type = type;
+            card.dataset.content = content;
+            card.dataset.match = matchValue;
+            card.dataset.matched = 'false';
+            card.dataset.audio = audio;
+            card.dataset.chinese = chinese;
+            
+            // 卡片装饰元素
+            const decor = document.createElement('div');
+            decor.className = 'absolute top-1 right-1 text-xs opacity-50';
+            if (type === 'english') {
+                decor.innerHTML = '<i class="fa fa-volume-up"></i>';
+            } else {
+                decor.innerHTML = '<i class="fa fa-picture-o"></i>';
+            }
+            card.appendChild(decor);
+            
+            // 设置卡片内容 - 优化移动端字体和图片大小
+            if (type === 'english') {
+                card.innerHTML += `
+                    <div class="text-base sm:text-lg font-bold mb-1 text-primary">${content}</div>
+                    <div class="text-xs text-lightText bg-white/70 px-2 py-0.5 rounded-full">点击听发音</div>
+                `;
+            } else {
+                // 修复：中文文本URL编码
+                const encodedChinese = encodeURIComponent(chinese);
+                card.innerHTML += `
+                    <img src="${content}" alt="${chinese}" class="w-16 sm:w-20 h-16 sm:h-20 object-contain mb-1 rounded-lg" 
+                         onerror="this.src='https://via.placeholder.com/64?text=${encodedChinese}'">
+                    <div class="text-xs font-medium text-blue bg-white/70 px-2 py-0.5 rounded-full">${chinese}</div>
+                `;
+            }
+            
+            // 点击事件
+            card.addEventListener('click', handleCardClick);
+            
+            return card;
+        }
+
+        // 处理卡片点击
+        function handleCardClick(e) {
+            const card = e.currentTarget;
+            
+            // 播放点击音效
+            playSound(sounds.click);
+            
+            // 已匹配或已选中的卡片不能再次点击
+            if (card.dataset.matched === 'true' || card.classList.contains('selected') || card.classList.contains('animate-fade-out')) {
+                return;
+            }
+            
+            // 开始游戏计时
+            if (!gameStarted) {
+                startTimer();
+                gameStarted = true;
+            }
+            
+            // 播放音频（单词卡片）
+            if (card.dataset.type === 'english' && soundEnabled) {
+                playAudio(card.dataset.audio);
+            }
+            
+            // 选中第一张卡片
+            if (!selectedCard) {
+                selectedCard = card;
+                card.classList.add('selected', 'bg-primary/20', 'border-accent', 'animate-pop');
+                return;
+            }
+            
+            // 选中第二张卡片（不能选同一张）
+            if (selectedCard === card) return;
+            
+            if (selectedCard.dataset.type !== card.dataset.type) {
+                card.classList.add('selected', 'bg-primary/20', 'border-accent', 'animate-pop');
+                
+                // 检查匹配
+                if (selectedCard.dataset.match === card.dataset.content || 
+                    selectedCard.dataset.content === card.dataset.match) {
+                    // 匹配成功 - 卡片消失
+                    setTimeout(() => {
+                        // 播放成功音效
+                        playSound(sounds.success);
+                        
+                        // 显示成功提示
+                        showSuccessToast();
+                        
+                        // 添加匹配成功的动画
+                        selectedCard.classList.add('animate-fade-out', 'bg-secondary/30', 'border-secondary');
+                        card.classList.add('animate-fade-out', 'bg-secondary/30', 'border-secondary');
+                        
+                        // 标记为已匹配
+                        selectedCard.dataset.matched = 'true';
+                        card.dataset.matched = 'true';
+                        
+                        // 更新计数
+                        matchedPairs++;
+                        matchedCountEl.textContent = matchedPairs;
+                        
+                        // 发放星星奖励
+                        updateStars();
+                        
+                        // 重置选中状态
+                        selectedCard = null;
+                        
+                        // 检查游戏结束
+                        if (matchedPairs === totalPairs) {
+                            endGame();
+                        }
+                    }, 500);
+                } else {
+                    // 匹配失败 - 显示鼓励提示
+                    wrongMatches++;
+                    
+                    // 播放错误音效
+                    playSound(sounds.error);
+                    
+                    // 随机选择鼓励语
+                    const randomIndex = Math.floor(Math.random() * encourageMessages.length);
+                    encourageText.textContent = encourageMessages[randomIndex];
+                    
+                    // 显示鼓励提示
+                    showEncourageToast();
+                    
+                    // 恢复卡片状态
+                    setTimeout(() => {
+                        selectedCard.classList.remove('selected', 'bg-primary/20', 'border-accent', 'animate-pop');
+                        card.classList.remove('selected', 'bg-primary/20', 'border-accent', 'animate-pop');
+                        selectedCard = null;
+                    }, 800);
+                }
+            }
+        }
+
+        // 更新星星奖励
+        function updateStars() {
+            const progress = matchedPairs / totalPairs;
+            
+            if (progress >= 1/3 && starsEarned < 1) {
+                starsEarned = 1;
+                star1.innerHTML = '<i class="fa fa-star text-xl animate-bounce"></i>';
+                playSound(sounds.success);
+            }
+            if (progress >= 2/3 && starsEarned < 2) {
+                starsEarned = 2;
+                star2.innerHTML = '<i class="fa fa-star text-xl animate-bounce"></i>';
+                playSound(sounds.success);
+            }
+            if (progress >= 1 && starsEarned < 3) {
+                starsEarned = 3;
+                star3.innerHTML = '<i class="fa fa-star text-xl animate-bounce"></i>';
+            }
+        }
+
+        // 显示鼓励提示
+        function showEncourageToast() {
+            encourageToast.classList.add('show');
+            setTimeout(() => {
+                encourageToast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 显示成功提示
+        function showSuccessToast() {
+            const randomIndex = Math.floor(Math.random() * successMessages.length);
+            document.getElementById('successText').textContent = successMessages[randomIndex];
+            successToast.classList.add('show');
+            setTimeout(() => {
+                successToast.classList.remove('show');
+            }, 1500);
+        }
+
+        // 播放音效
+        function playSound(soundUrl) {
+            if (!soundEnabled) return;
+            
+            const audio = new Audio(soundUrl);
+            audio.volume = 0.7;
+            audio.play().catch(() => {
+                // 音效播放失败时忽略
+            });
+        }
+
+        // 播放单词音频
+        function playAudio(audioPath) {
+            if (!soundEnabled) return;
+            
+            const audio = new Audio(audioPath);
+            audio.volume = 0.8;
+            audio.play().catch(() => {
+                // 音频播放失败时使用语音合成
+                const word = audioPath.split('/').pop().replace('.mp3', '');
+                speakText(word, 'en-US');
+            });
+        }
+
+        // 文字转语音
+        function speakText(text, lang = 'en-US') {
+            if (!soundEnabled) return;
+            
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = text;
+            speech.lang = lang;
+            speech.rate = 0.8;
+            speech.volume = 0.8;
+            window.speechSynthesis.speak(speech);
+        }
+
+        // 开始计时器
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                timerEl.textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        // 结束游戏
+        function endGame() {
+            clearInterval(timerInterval);
+            
+            // 播放胜利音效
+            playSound(sounds.win);
+            
+            // 创建庆祝彩屑
+            createConfetti();
+            
+            // 计算正确率
+            const totalAttempts = matchedPairs + wrongMatches;
+            const accuracy = Math.round((matchedPairs / totalAttempts) * 100);
+            
+            // 更新弹窗信息
+            finalTimeEl.textContent = timerEl.textContent;
+            accuracyRateEl.textContent = `${accuracy}%`;
+            
+            // 显示弹窗
+            setTimeout(() => {
+                successModal.classList.remove('hidden');
+            }, 1000);
+        }
+
+        // 创建彩屑效果
+        function createConfetti() {
+            const colors = ['#FF6B8B', '#4CAF50', '#FFD600', '#2196F3', '#9C27B0', '#FF9800'];
+            
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 8 + 4}px`;
+                confetti.style.height = `${Math.random() * 8 + 4}px`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                
+                document.body.appendChild(confetti);
+                
+                // 移除彩屑元素
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // 切换声音
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                soundToggle.innerHTML = '<i class="fa fa-volume-up text-primary text-lg"></i>';
+                showToast('声音已开启');
+            } else {
+                soundToggle.innerHTML = '<i class="fa fa-volume-off text-primary text-lg"></i>';
+                showToast('声音已关闭');
+            }
+        }
+
+        // 简单提示框
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-black/80 text-white px-3 py-1.5 rounded-lg text-xs z-100';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 1500);
+        }
+
+        // 事件监听
+        document.getElementById('restartBtn').addEventListener('click', initGame);
+        document.getElementById('playAgainModalBtn').addEventListener('click', initGame);
+        soundToggle.addEventListener('click', toggleSound);
+        document.getElementById('infoBtn').addEventListener('click', () => {
+            infoModal.classList.remove('hidden');
+        });
+        document.getElementById('closeInfoBtn').addEventListener('click', () => {
+            infoModal.classList.add('hidden');
+        });
+
+        // 点击空白处关闭弹窗
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) {
+                infoModal.classList.add('hidden');
+            }
+        });
+
+        successModal.addEventListener('click', (e) => {
+            if (e.target === successModal) {
+                successModal.classList.add('hidden');
+            }
+        });
+
+        // 页面加载后自动开始游戏
+        window.addEventListener('load', () => {
+            // 预加载部分音效
+            Object.values(sounds).forEach(sound => {
+                const audio = new Audio(sound);
+                audio.load();
+            });
+            
+            // 自动初始化游戏
+            setTimeout(() => {
+                initGame();
+            }, 300);
+        });
+    </script>
+</body>
+</html>
